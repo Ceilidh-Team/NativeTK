@@ -38,7 +38,7 @@ namespace ProjectCeilidh.NativeTK.Native.Platform
                 _handle = handle;
             }
 
-            protected override IntPtr GetSymbolAddress(string symbol) => dlsym(_handle, symbol);
+            public override IntPtr GetSymbolAddress(string symbol) => dlsym(_handle, symbol);
         }
     }
 }
