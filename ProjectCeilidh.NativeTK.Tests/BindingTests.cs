@@ -14,7 +14,7 @@ namespace ProjectCeilidh.NativeTK.Tests
             {
                 var binding = BindingFactory.CreateBinding<ITestBindingWindows>();
                 Assert.NotNull(binding.GetCommandLineA());
-                ref var _ = ref binding.GetCommandLineW;
+                ref var _ = ref binding.GetCommandLineWRef;
             }
             else
             {
@@ -37,8 +37,8 @@ namespace ProjectCeilidh.NativeTK.Tests
         [NativeLibraryContract("kernel32")]
         public interface ITestBindingWindows
         {
-            [NativeImport]
-            ref IntPtr GetCommandLineW { get; }
+            [NativeImport(EntryPoint = "GetCommandLineW")]
+            ref IntPtr GetCommandLineWRef { get; }
 
             [NativeImport(SetLastError = true)]
             string GetCommandLineA();

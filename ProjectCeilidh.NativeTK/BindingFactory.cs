@@ -27,43 +27,61 @@ namespace ProjectCeilidh.NativeTK
 
             var intTyp = typeof(T);
             
-            if (!intTyp.IsInterface) throw new ArgumentException();
+            if (!intTyp.IsInterface) throw new ArgumentException("Type argument must be an interface.");
 
             var libraryAttr = intTyp.GetCustomAttribute<NativeLibraryContractAttribute>();
 
+            if (libraryAttr == null) throw new ArgumentException("Type argument must have a NativeLibraryContractAttribute");
+
             var handle = loader.LoadNativeLibrary(libraryAttr.LibraryName, libraryAttr.Version);
 
+            // Create the dynamic assembly which will contain the binding
             var asm = AssemblyDefinition.CreateAssembly(new AssemblyNameDefinition(libraryAttr.LibraryName, libraryAttr.Version),
                 "<Module>", ModuleKind.Dll);
+            // Create the binding type
             var implTyp = new TypeDefinition("", $"{intTyp.Name}Impl", Mono.Cecil.TypeAttributes.Public, asm.MainModule.TypeSystem.Object);
             implTyp.Interfaces.Add(new InterfaceImplementation(asm.MainModule.ImportReference(intTyp)));
             asm.MainModule.Types.Add(implTyp);
 
-            var implCtor = new MethodDefinition(".ctor", MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Public | MethodAttributes.HideBySig, asm.MainModule.TypeSystem.Void);
+            // Create a default constructor for the binding type
+            var implCtor = new MethodDefinition(".ctor",
+                MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Public |
+                MethodAttributes.HideBySig, asm.MainModule.TypeSystem.Void);
             implTyp.Methods.Add(implCtor);
+            // Simple ctor body - load `this`, call `new object()` against it
             var ctorProc = implCtor.Body.GetILProcessor();
             ctorProc.Emit(OpCodes.Ldarg_0);
             ctorProc.Emit(OpCodes.Call, asm.MainModule.ImportReference(typeof(object).GetConstructor(new Type[0])));
             ctorProc.Emit(OpCodes.Ret);
 
-            foreach (var intMethod in intTyp.GetRuntimeMethods())
+            // Implement all the methods in the interface
+            foreach (var intMethod in intTyp.GetMethods())
             {
+                // If the method has a special name, ignore it. This excludes property getters/setters
                 if (intMethod.IsSpecialName) continue;
 
-                if (intMethod.CallingConvention == CallingConventions.VarArgs) throw new ArgumentException();
+                // The method cannot have varargs (this actually /can/ be achieved later, but it's too complicated for now)
+                if (intMethod.CallingConvention == CallingConventions.VarArgs) throw new ArgumentException("Type argument cannot contain a method with varargs");
 
                 var intAttr = intMethod.GetCustomAttribute<NativeImportAttribute>();
 
+                if (intAttr == null) throw new ArgumentException($"Type argument contains a method without a NativeImportAttribute ({intMethod.Name})");
+
+                // Create the dynamic method for the implementation
                 var meth = new MethodDefinition(intMethod.Name,
                     MethodAttributes.Public | MethodAttributes.Final |
                     MethodAttributes.Virtual,
                     asm.MainModule.ImportReference(intMethod.ReturnType));
                 implTyp.Methods.Add(meth);
+
+                // The body for the dynamic method
                 var proc = meth.Body.GetILProcessor();
 
+                // Load the symbol address for this function as a long, then convert to an IntPtr (native int)
                 proc.Emit(OpCodes.Ldc_I8, (long) handle.GetSymbolAddress(intAttr.EntryPoint ?? intMethod.Name));
                 proc.Emit(OpCodes.Conv_I);
 
+                // Generate a CallSite for the unmanaged function
                 var callSite = new CallSite(asm.MainModule.ImportReference(intMethod.ReturnType));
 
                 switch (intAttr.CallingConvention)
@@ -94,57 +112,44 @@ namespace ProjectCeilidh.NativeTK
                     proc.Emit(OpCodes.Ldarg, ++i);
                 }
 
+                // Invoke the method with a CallIndirect, then return the result
                 proc.Emit(OpCodes.Calli, callSite);
                 proc.Emit(OpCodes.Ret);
             }
 
-            foreach (var intProp in intTyp.GetRuntimeProperties())
+            // Implement all the properties in the interface
+            foreach (var intProp in intTyp.GetProperties())
             {
                 var intAttr = intProp.GetCustomAttribute<NativeImportAttribute>();
 
-                if (intProp.CanWrite) throw new ArgumentException();
+                if (intAttr == null) throw new ArgumentException($"Type argument contains a property without a NativeImportAttribute ({intProp.Name})");
 
-                if (intProp.PropertyType.IsByRef)
-                {
-                    if (intProp.PropertyType.GetElementType()?.IsValueType != true) throw new ArgumentException();
+                if (!intProp.PropertyType.IsByRef) throw new ArgumentException($"Type argument's properties must be ref returns ({intProp.Name})");
+                if (intProp.CanWrite) throw new ArgumentException($"Type argument's properties cannot have a setter ({intProp.Name})");
 
-                    var prop = new PropertyDefinition(intProp.Name, PropertyAttributes.None,
-                        asm.MainModule.ImportReference(intProp.PropertyType));
-                    var propMethod = new MethodDefinition($"get_{intProp.Name}",
-                        MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final |
-                        MethodAttributes.SpecialName, asm.MainModule.ImportReference(intProp.PropertyType));
-                    prop.GetMethod = propMethod;
-                    implTyp.Properties.Add(prop);
-                    implTyp.Methods.Add(propMethod);
+                if (intProp.PropertyType.GetElementType()?.IsValueType != true) throw new ArgumentException("Type argument's properties must be a reference to a value type");
 
-                    var getProc = propMethod.Body.GetILProcessor();
+                // Generate the property and get method
+                var prop = new PropertyDefinition(intProp.Name, PropertyAttributes.None,
+                    asm.MainModule.ImportReference(intProp.PropertyType));
+                var propMethod = new MethodDefinition($"get_{intProp.Name}",
+                    MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final |
+                    MethodAttributes.SpecialName, asm.MainModule.ImportReference(intProp.PropertyType));
+                prop.GetMethod = propMethod;
+                implTyp.Properties.Add(prop);
+                implTyp.Methods.Add(propMethod);
 
-                    getProc.Emit(OpCodes.Ldc_I8, (long) handle.GetSymbolAddress(intAttr.EntryPoint ?? intProp.Name));
-                    getProc.Emit(OpCodes.Conv_I);
-                    getProc.Emit(OpCodes.Ret);
-                }
-                else
-                {
-                    if (!intProp.PropertyType.IsValueType) throw new ArgumentException();
+                // Generate a get body which resolves the symbol
+                var getProc = propMethod.Body.GetILProcessor();
 
-                    var prop = new PropertyDefinition(intProp.Name, PropertyAttributes.None,
-                        asm.MainModule.ImportReference(intProp.PropertyType));
-                    var propMethod = new MethodDefinition($"get_{intProp.Name}",
-                        MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final |
-                        MethodAttributes.SpecialName, asm.MainModule.ImportReference(intProp.PropertyType));
-                    prop.GetMethod = propMethod;
-                    implTyp.Properties.Add(prop);
-                    implTyp.Methods.Add(propMethod);
-
-                    var getProc = propMethod.Body.GetILProcessor();
-
-                    getProc.Emit(OpCodes.Ldc_I8, (long)handle.GetSymbolAddress(intAttr.EntryPoint ?? intProp.Name));
-                    getProc.Emit(OpCodes.Conv_I);
-                    getProc.Emit(OpCodes.Ldobj, asm.MainModule.ImportReference(intProp.PropertyType));
-                    getProc.Emit(OpCodes.Ret);
-                }
+                // Load the symbol address and convert to an IntPtr (native int)
+                getProc.Emit(OpCodes.Ldc_I8, (long) handle.GetSymbolAddress(intAttr.EntryPoint ?? intProp.Name));
+                getProc.Emit(OpCodes.Conv_I);
+                // Return this unmodified - the result is that the pointer is converted to a reference by the CLR
+                getProc.Emit(OpCodes.Ret);
             }
 
+            // Write the newly generated assembly to memory, load it, and instatiate the newly generated binding
             using (var mem = new MemoryStream())
             {
                 asm.Write(mem);
