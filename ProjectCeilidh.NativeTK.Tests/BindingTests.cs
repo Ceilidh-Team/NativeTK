@@ -13,7 +13,7 @@ namespace ProjectCeilidh.NativeTK.Tests
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 var binding = BindingFactory.CreateBinding<ITestBindingWindows>();
-                Assert.NotNull(binding.GetCommandLineA());
+                Assert.NotEqual(IntPtr.Zero, binding.GetStdHandle(-11));
                 ref var _ = ref binding.GetCommandLineWRef;
             }
             else
@@ -24,7 +24,7 @@ namespace ProjectCeilidh.NativeTK.Tests
             }
         }
 
-        [NativeLibraryContract("dl", VersionString = "1.0.0")]
+        [NativeLibraryContract("dl", VersionString = "2.0.0")]
         public interface ITestBindingUnix
         {
             [NativeImport]
@@ -41,7 +41,7 @@ namespace ProjectCeilidh.NativeTK.Tests
             ref IntPtr GetCommandLineWRef { get; }
 
             [NativeImport(SetLastError = true)]
-            string GetCommandLineA();
+            IntPtr GetStdHandle(int nStdHandle);
 
 
         }

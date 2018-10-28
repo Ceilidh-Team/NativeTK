@@ -7,6 +7,7 @@ using ProjectCeilidh.NativeTK.Native;
 using System.Reflection;
 using Mono.Cecil.Cil;
 using MethodAttributes = Mono.Cecil.MethodAttributes;
+using ParameterAttributes = Mono.Cecil.ParameterAttributes;
 using PropertyAttributes = Mono.Cecil.PropertyAttributes;
 
 namespace ProjectCeilidh.NativeTK
@@ -77,10 +78,6 @@ namespace ProjectCeilidh.NativeTK
                 // The body for the dynamic method
                 var proc = meth.Body.GetILProcessor();
 
-                // Load the symbol address for this function as a long, then convert to an IntPtr (native int)
-                proc.Emit(OpCodes.Ldc_I8, (long) handle.GetSymbolAddress(intAttr.EntryPoint ?? intMethod.Name));
-                proc.Emit(OpCodes.Conv_I);
-
                 // Generate a CallSite for the unmanaged function
                 var callSite = new CallSite(asm.MainModule.ImportReference(intMethod.ReturnType));
 
@@ -107,10 +104,17 @@ namespace ProjectCeilidh.NativeTK
                 foreach (var param in intMethod.GetParameters())
                 {
                     callSite.Parameters.Add(
-                        new ParameterDefinition(asm.MainModule.ImportReference(param.ParameterType)));
+                        new ParameterDefinition(param.Name, (ParameterAttributes) param.Attributes,
+                            asm.MainModule.ImportReference(param.ParameterType)));
+                    meth.Parameters.Add(new ParameterDefinition(param.Name, (ParameterAttributes) param.Attributes,
+                        asm.MainModule.ImportReference(param.ParameterType)));
 
                     proc.Emit(OpCodes.Ldarg, ++i);
                 }
+
+                // Load the symbol address for this function as a long, then convert to an IntPtr (native int)
+                proc.Emit(OpCodes.Ldc_I8, (long)handle.GetSymbolAddress(intAttr.EntryPoint ?? intMethod.Name));
+                proc.Emit(OpCodes.Conv_I);
 
                 // Invoke the method with a CallIndirect, then return the result
                 proc.Emit(OpCodes.Calli, callSite);

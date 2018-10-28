@@ -14,7 +14,8 @@ namespace ProjectCeilidh.NativeTK.Native.Platform
             {
                 $"lib{libraryName}.{version.Major}.{version.Minor}.{version.Build}.dylib",
                 $"lib{libraryName}.{version.Major}.{version.Minor}.dylib",
-                $"lib{libraryName}.{version.Major}.dylib"
+                $"lib{libraryName}.{version.Major}.dylib",
+                $"lib{libraryName}.dylib"
             };
         }
 

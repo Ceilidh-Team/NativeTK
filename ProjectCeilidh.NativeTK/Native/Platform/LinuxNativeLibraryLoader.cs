@@ -14,7 +14,8 @@ namespace ProjectCeilidh.NativeTK.Native.Platform
             {
                 $"lib{libraryName}.so.{version.Major}.{version.Minor}.{version.Build}",
                 $"lib{libraryName}.so.{version.Major}.{version.Minor}",
-                $"lib{libraryName}.so.{version.Major}"
+                $"lib{libraryName}.so.{version.Major}",
+                $"lib{libraryName}.so"
             };
         }
 
