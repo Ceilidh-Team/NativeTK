@@ -163,8 +163,6 @@ namespace ProjectCeilidh.NativeTK
             using (var mem = new MemoryStream())
             {
                 asm.Write(mem);
-                File.WriteAllBytes(@"C:\Users\olivia\Desktop\test.dll", mem.ToArray());
-
                 var newAsm = Assembly.Load(mem.ToArray());
                 var newTyp = newAsm.GetType($"{intTyp.Name}Impl");
                 return (T) newTyp.GetConstructor(new Type[0])?.Invoke(new object[0]);
@@ -397,8 +395,6 @@ namespace ProjectCeilidh.NativeTK
             using (var mem = new MemoryStream())
             {
                 asm.Write(mem);
-                File.WriteAllBytes(@"C:\Users\olivia\Desktop\test.dll", mem.ToArray());
-
                 var newAsm = Assembly.Load(mem.ToArray());
                 var newTyp = newAsm.GetType($"{intTyp.Name}Impl");
                 return (T)newTyp.GetConstructor(new[] { typeof(NativeLibraryHandle) })?.Invoke(new object[] { handle });
