@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectCeilidh.NativeTK", "ProjectCeilidh.NativeTK\ProjectCeilidh.NativeTK.csproj", "{895EA29E-4A28-4442-80C0-8E4C7A68E21A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectCeilidh.NativeTK.Tests", "ProjectCeilidh.NativeTK.Tests\ProjectCeilidh.NativeTK.Tests.csproj", "{6613BE4A-CFAE-4E88-A1C4-D72C48E620D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectCeilidh.NativeTK.Tests", "ProjectCeilidh.NativeTK.Tests\ProjectCeilidh.NativeTK.Tests.csproj", "{6613BE4A-CFAE-4E88-A1C4-D72C48E620D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectCeilidh.NativeTK.Benchmark", "ProjectCeilidh.NativeTK.Benchmark\ProjectCeilidh.NativeTK.Benchmark.csproj", "{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,18 @@ Global
 		{6613BE4A-CFAE-4E88-A1C4-D72C48E620D1}.Release|x64.Build.0 = Release|Any CPU
 		{6613BE4A-CFAE-4E88-A1C4-D72C48E620D1}.Release|x86.ActiveCfg = Release|Any CPU
 		{6613BE4A-CFAE-4E88-A1C4-D72C48E620D1}.Release|x86.Build.0 = Release|Any CPU
+		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Debug|x64.Build.0 = Debug|Any CPU
+		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Debug|x86.Build.0 = Debug|Any CPU
+		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Release|x64.ActiveCfg = Release|Any CPU
+		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Release|x64.Build.0 = Release|Any CPU
+		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Release|x86.ActiveCfg = Release|Any CPU
+		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
