@@ -33,7 +33,8 @@ namespace ProjectCeilidh.NativeTK.Tests
             ref IntPtr dlsym { get; }
 
             [NativeImport]
-            IntPtr dlopen(string path, int flag);
+            [return: MarshalAs(UnmanagedType.SysInt)]
+            IntPtr dlopen([MarshalAs(UnmanagedType.LPStr)] string path, [MarshalAs(UnmanagedType.I4)] int flag);
         }
 
         [NativeLibraryContract("kernel32")]
@@ -43,7 +44,8 @@ namespace ProjectCeilidh.NativeTK.Tests
             ref IntPtr GetCommandLineWRef { get; }
 
             [NativeImport(SetLastError = true, CallingConvention = CallingConvention.Winapi)]
-            IntPtr GetStdHandle(int nStdHandle);
+            [return: MarshalAs(UnmanagedType.SysInt)]
+            IntPtr GetStdHandle([MarshalAs(UnmanagedType.I4)] int nStdHandle);
         }
     }
 }

@@ -308,11 +308,19 @@ namespace ProjectCeilidh.NativeTK
 
                     bindMeth.PInvokeInfo = new PInvokeInfo(pInvokeAttributes, intAttr.EntryPoint ?? intMethod.Name, module);
                 }
-                
+
+                var retMarshal = intMethod.ReturnParameter?.GetCustomAttribute<MarshalAsAttribute>();
+                if (retMarshal != null)
+                    bindMeth.MethodReturnType.MarshalInfo = GetMarshalInfo(asm.MainModule, retMarshal);
+
                 // Add all the parameters we want
                 foreach (var parameter in intMethod.GetParameters())
                 {
                     var implParam = new ParameterDefinition(parameter.Name, (ParameterAttributes) parameter.Attributes, asm.MainModule.ImportReference(parameter.ParameterType));
+
+                    foreach (var marshal in parameter.GetCustomAttributes<MarshalAsAttribute>())
+                        implParam.MarshalInfo = GetMarshalInfo(asm.MainModule, marshal);
+
                     bindMeth.Parameters.Add(implParam);
                 }
 
@@ -381,6 +389,153 @@ namespace ProjectCeilidh.NativeTK
                 var newAsm = Assembly.Load(mem.ToArray());
                 var newTyp = newAsm.GetType($"{intTyp.Name}Impl");
                 return (T)newTyp.GetConstructor(new Type[0])?.Invoke(new object[0]);
+            }
+        }
+
+        private static NativeType GetNativeType(UnmanagedType unmanagedType)
+        {
+            switch (unmanagedType)
+            {
+                case UnmanagedType.AnsiBStr:return NativeType.ANSIBStr;
+                case UnmanagedType.AsAny:
+                    return NativeType.ASAny;
+                case UnmanagedType.Bool:
+                    return NativeType.Boolean;
+                case UnmanagedType.BStr:
+                    return NativeType.BStr;
+                case UnmanagedType.ByValArray:
+                    return NativeType.FixedArray;
+                case UnmanagedType.ByValTStr:
+                    return NativeType.ByValStr;
+                case UnmanagedType.Currency:
+                    return NativeType.Currency;
+                case UnmanagedType.CustomMarshaler:
+                    return NativeType.CustomMarshaler;
+                case UnmanagedType.Error:
+                    return NativeType.Error;
+                case UnmanagedType.FunctionPtr:
+                    return NativeType.Func;
+                case UnmanagedType.HString:
+                    throw new ArgumentException();
+                case UnmanagedType.I1:
+                    return NativeType.I1;
+                case UnmanagedType.I2:
+                    return NativeType.I2;
+                case UnmanagedType.I4:
+                    return NativeType.I4;
+                case UnmanagedType.I8:
+                    return NativeType.I8;
+                case UnmanagedType.IDispatch:
+                    return NativeType.IDispatch;
+                case UnmanagedType.IInspectable:
+                    throw new ArgumentException();
+                case UnmanagedType.Interface:
+                    throw new ArgumentException();
+                case UnmanagedType.IUnknown:
+                    throw new ArgumentException();
+                case UnmanagedType.LPArray:
+                    return NativeType.Array;
+                case UnmanagedType.LPStr:
+                    return NativeType.LPStr;
+                case UnmanagedType.LPStruct:
+                    return NativeType.LPStruct;
+                case UnmanagedType.LPTStr:
+                    return NativeType.LPTStr;
+                case UnmanagedType.LPWStr:
+                    return NativeType.LPWStr;
+                case UnmanagedType.R4:
+                    return NativeType.R4;
+                case UnmanagedType.R8:
+                    return NativeType.R8;
+                case UnmanagedType.SafeArray:
+                    return NativeType.SafeArray;
+                case UnmanagedType.Struct:
+                    return NativeType.Struct;
+                case UnmanagedType.SysInt:
+                    return NativeType.Int;
+                case UnmanagedType.SysUInt:
+                    return NativeType.UInt;
+                case UnmanagedType.TBStr:
+                    return NativeType.TBStr;
+                case UnmanagedType.U1:
+                    return NativeType.U1;
+                case UnmanagedType.U2:
+                    return NativeType.U2;
+                case UnmanagedType.U4:
+                    return NativeType.U4;
+                case UnmanagedType.U8:
+                    return NativeType.U8;
+                case UnmanagedType.VariantBool:
+                    return NativeType.VariantBool;
+                case UnmanagedType.VBByRefStr:
+                    throw new ArgumentException();
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(unmanagedType), unmanagedType, null);
+            }
+        }
+
+        private static MarshalInfo GetMarshalInfo(ModuleDefinition module, MarshalAsAttribute attribute)
+        {
+            switch (attribute.Value)
+            {
+                case UnmanagedType.AnsiBStr:
+                case UnmanagedType.AsAny:
+                case UnmanagedType.Bool:
+                case UnmanagedType.BStr:
+                case UnmanagedType.ByValTStr:
+                case UnmanagedType.Currency:
+                case UnmanagedType.Error:
+                case UnmanagedType.FunctionPtr:
+                case UnmanagedType.HString:
+                case UnmanagedType.I1:
+                case UnmanagedType.I2:
+                case UnmanagedType.I4:
+                case UnmanagedType.I8:
+                case UnmanagedType.IDispatch:
+                case UnmanagedType.IInspectable:
+                case UnmanagedType.Interface:
+                case UnmanagedType.IUnknown:
+                case UnmanagedType.LPArray:
+                case UnmanagedType.LPStr:
+                case UnmanagedType.LPStruct:
+                case UnmanagedType.LPTStr:
+                case UnmanagedType.LPWStr:
+                case UnmanagedType.R4:
+                case UnmanagedType.R8:
+                case UnmanagedType.Struct:
+                case UnmanagedType.SysInt:
+                case UnmanagedType.SysUInt:
+                case UnmanagedType.TBStr:
+                case UnmanagedType.U1:
+                case UnmanagedType.U2:
+                case UnmanagedType.U4:
+                case UnmanagedType.U8:
+                case UnmanagedType.VariantBool:
+                case UnmanagedType.VBByRefStr:
+                    return new MarshalInfo(GetNativeType(attribute.Value));
+                case UnmanagedType.ByValArray:
+                    return new FixedArrayMarshalInfo
+                    {
+                        NativeType = NativeType.FixedArray,
+                        Size = attribute.SizeConst,
+                        ElementType = GetNativeType(attribute.ArraySubType)
+                    };
+                case UnmanagedType.CustomMarshaler:
+                    return new CustomMarshalInfo
+                    {
+                        Cookie = attribute.MarshalCookie,
+                        NativeType = NativeType.CustomMarshaler,
+                        ManagedType = module.ImportReference(attribute.MarshalTypeRef)
+                    };
+                case UnmanagedType.SafeArray:
+                    /*return new SafeArrayMarshalInfo
+                    {
+                        NativeType = NativeType.SafeArray,
+                        ElementType = VariantType.I1
+                    }*/
+                    throw new ArgumentException();
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }
