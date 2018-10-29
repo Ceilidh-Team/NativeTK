@@ -22,7 +22,7 @@ namespace ProjectCeilidh.NativeTK.Native.Platform
         protected override NativeLibraryHandle LoadNativeLibrary(string libraryName)
         {
             var handle = dlopen(libraryName, RTLD_NOW);
-            return handle == IntPtr.Zero ? null : new LinuxNativeLibraryHandle(handle);
+            return handle == IntPtr.Zero ? null : new LinuxNativeLibraryHandle(libraryName, handle);
         }
         
         [DllImport(LIBDL)]
@@ -34,7 +34,7 @@ namespace ProjectCeilidh.NativeTK.Native.Platform
         {
             private readonly IntPtr _handle;
             
-            public LinuxNativeLibraryHandle(IntPtr handle)
+            public LinuxNativeLibraryHandle(string path, IntPtr handle) : base(path)
             {
                 _handle = handle;
             }

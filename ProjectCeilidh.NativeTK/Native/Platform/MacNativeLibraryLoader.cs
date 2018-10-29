@@ -22,7 +22,7 @@ namespace ProjectCeilidh.NativeTK.Native.Platform
         protected override NativeLibraryHandle LoadNativeLibrary(string libraryName)
         {
             var handle = dlopen(libraryName, RTLD_NOW);
-            return handle == IntPtr.Zero ? null : new MacNativeLibraryHandle(handle);
+            return handle == IntPtr.Zero ? null : new MacNativeLibraryHandle(libraryName, handle);
         }
         
         [DllImport(LIBDL)]
@@ -34,7 +34,7 @@ namespace ProjectCeilidh.NativeTK.Native.Platform
         {
             private readonly IntPtr _handle;
             
-            public MacNativeLibraryHandle(IntPtr handle)
+            public MacNativeLibraryHandle(string path, IntPtr handle) : base(path)
             {
                 _handle = handle;
             }

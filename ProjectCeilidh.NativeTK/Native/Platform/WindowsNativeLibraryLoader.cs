@@ -27,7 +27,7 @@ namespace ProjectCeilidh.NativeTK.Native.Platform
         protected override NativeLibraryHandle LoadNativeLibrary(string libraryName)
         {
             var handle = LoadLibrary(libraryName);
-            return handle == IntPtr.Zero ? null : new WindowsNativeLibraryHandle(handle);
+            return handle == IntPtr.Zero ? null : new WindowsNativeLibraryHandle(libraryName, handle);
         }
 
         [DllImport(KERNEL32, SetLastError = true)]
@@ -40,7 +40,7 @@ namespace ProjectCeilidh.NativeTK.Native.Platform
         {
             private readonly IntPtr _handle;
             
-            public WindowsNativeLibraryHandle(IntPtr handle)
+            public WindowsNativeLibraryHandle(string path, IntPtr handle) : base(path)
             {
                 _handle = handle;
             }

@@ -6,7 +6,12 @@ namespace ProjectCeilidh.NativeTK.Native
 {
     public abstract class NativeLibraryHandle
     {
-        internal NativeLibraryHandle() { }
+        public string LibraryPath { get; }
+
+        internal NativeLibraryHandle(string libraryPath)
+        {
+            LibraryPath = libraryPath;
+        }
 
         /// <summary>
         /// Get a delegate for the function represented by a given symbol.

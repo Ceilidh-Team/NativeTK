@@ -7,38 +7,20 @@ namespace ProjectCeilidh.NativeTK.Tests
 {
     public class BindingTests
     {
-        [return: MarshalAs(UnmanagedType.SysInt)]
-        private delegate IntPtr TestDelegate([MarshalAs(UnmanagedType.I4)] int i);
-
-        [Fact]
-        public void UnsafeBindingTest()
+        [Theory]
+        [InlineData(NativeBindingType.Indirect)]
+        [InlineData(NativeBindingType.Static)]
+        public void BindingTest(NativeBindingType bindingType)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                var binding = BindingFactory.CreateBinding<ITestBindingWindows>();
+                var binding = BindingFactory.CreateBinding<ITestBindingWindows>(bindingType);
                 Assert.NotEqual(IntPtr.Zero, binding.GetStdHandle(-11));
                 ref var _ = ref binding.GetCommandLineWRef;
             }
             else
             {
-                var binding = BindingFactory.CreateBinding<ITestBindingUnix>();
-                Assert.Equal(IntPtr.Zero, binding.dlopen("", 0));
-                ref var _ = ref binding.dlsym;
-            }
-        }
-
-        [Fact]
-        public void SafeBindingTest()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                var binding = BindingFactory.CreateSafeBinding<ITestBindingWindows>();
-                Assert.NotEqual(IntPtr.Zero, binding.GetStdHandle(-11));
-                ref var _ = ref binding.GetCommandLineWRef;
-            }
-            else
-            {
-                var binding = BindingFactory.CreateSafeBinding<ITestBindingUnix>();
+                var binding = BindingFactory.CreateBinding<ITestBindingUnix>(bindingType);
                 Assert.Equal(IntPtr.Zero, binding.dlopen("", 0));
                 ref var _ = ref binding.dlsym;
             }
@@ -51,7 +33,8 @@ namespace ProjectCeilidh.NativeTK.Tests
             ref IntPtr dlsym { get; }
 
             [NativeImport]
-            IntPtr dlopen(string path, int flag);
+            [return: MarshalAs(UnmanagedType.SysInt)]
+            IntPtr dlopen([MarshalAs(UnmanagedType.LPStr)] string path, [MarshalAs(UnmanagedType.I4)] int flag);
         }
 
         [NativeLibraryContract("kernel32")]
@@ -60,8 +43,9 @@ namespace ProjectCeilidh.NativeTK.Tests
             [NativeImport(EntryPoint = "GetCommandLineW")]
             ref IntPtr GetCommandLineWRef { get; }
 
-            [NativeImport(SetLastError = true)]
-            IntPtr GetStdHandle(int nStdHandle);
+            [NativeImport(SetLastError = true, CallingConvention = CallingConvention.Winapi)]
+            [return: MarshalAs(UnmanagedType.SysInt)]
+            IntPtr GetStdHandle([MarshalAs(UnmanagedType.I4)] int nStdHandle);
         }
     }
 }
