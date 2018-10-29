@@ -12,6 +12,7 @@
     <RepositoryUrl>https://github.com/Ceilidh-Team/NativeTK</RepositoryUrl>
     <PackageLicenseUrl>https://github.com/Ceilidh-Team/NativeTK/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Ceilidh-Team/NativeTK</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
