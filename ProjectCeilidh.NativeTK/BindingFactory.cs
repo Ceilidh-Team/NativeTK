@@ -5,6 +5,7 @@ using Mono.Cecil;
 using ProjectCeilidh.NativeTK.Attributes;
 using ProjectCeilidh.NativeTK.Native;
 using System.Reflection;
+using System.Security;
 using Mono.Cecil.Cil;
 using MethodAttributes = Mono.Cecil.MethodAttributes;
 using MethodImplAttributes = Mono.Cecil.MethodImplAttributes;
@@ -265,6 +266,9 @@ namespace ProjectCeilidh.NativeTK
                 {
                     ImplAttributes = MethodImplAttributes.PreserveSig,
                 };
+
+                if  (intMethod.GetCustomAttribute<SuppressUnmanagedCodeSecurityAttribute>() != null)
+                    bindMeth.CustomAttributes.Add(new CustomAttribute(asm.MainModule.ImportReference(typeof(SuppressUnmanagedCodeSecurityAttribute).GetConstructor(new Type[0]))));
 
                 {
                     var module = new ModuleReference(handle.LibraryPath);
