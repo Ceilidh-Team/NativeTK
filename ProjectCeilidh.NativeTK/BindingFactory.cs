@@ -14,6 +14,9 @@ using TypeAttributes = Mono.Cecil.TypeAttributes;
 
 namespace ProjectCeilidh.NativeTK
 {
+    /// <summary>
+    /// The strategy used to create the native binding
+    /// </summary>
     public enum NativeBindingType
     {
         /// <summary>
@@ -28,8 +31,17 @@ namespace ProjectCeilidh.NativeTK
         Static = 2
     }
 
+    /// <summary>
+    /// Contains helper methods for creating native bindings.
+    /// </summary>
     public static class BindingFactory
     {
+        /// <summary>
+        /// Create a implementation for a given interface, binding native methods.
+        /// </summary>
+        /// <typeparam name="T">An interface which defines native methods to bind.</typeparam>
+        /// <param name="bindingType">The type of binding to create.</param>
+        /// <returns>An implementation of the contract interface with the specified native methods bound.</returns>
         public static T CreateBinding<T>(NativeBindingType bindingType = NativeBindingType.Static) where T : class
         {
             switch (bindingType)
@@ -195,10 +207,10 @@ namespace ProjectCeilidh.NativeTK
 
         /// <summary>
         /// Create an implementation for a given interface, binding native methods.
-        /// This is achieved by generating a class with DLLImport attributes.
+        /// This is achieved by generating a class with DllImport attributes.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <typeparam name="T">The interface type to implement</typeparam>
+        /// <returns>An instance binding the specified native interface.</returns>
         private static T CreateStaticBinding<T>() where T : class 
         {
             // Get the NativeLibraryLoader for this platform
@@ -392,11 +404,17 @@ namespace ProjectCeilidh.NativeTK
             }
         }
 
+        /// <summary>
+        /// Get the corresponding <see cref="NativeType"/> for a specific <see cref="UnmanagedType"/>.
+        /// </summary>
+        /// <param name="unmanagedType">The unmanaged type to convert.</param>
+        /// <returns></returns>
         private static NativeType GetNativeType(UnmanagedType unmanagedType)
         {
             switch (unmanagedType)
             {
-                case UnmanagedType.AnsiBStr:return NativeType.ANSIBStr;
+                case UnmanagedType.AnsiBStr:
+                    return NativeType.ANSIBStr;
                 case UnmanagedType.AsAny:
                     return NativeType.ASAny;
                 case UnmanagedType.Bool:
@@ -415,8 +433,6 @@ namespace ProjectCeilidh.NativeTK
                     return NativeType.Error;
                 case UnmanagedType.FunctionPtr:
                     return NativeType.Func;
-                case UnmanagedType.HString:
-                    throw new ArgumentException();
                 case UnmanagedType.I1:
                     return NativeType.I1;
                 case UnmanagedType.I2:
@@ -427,12 +443,6 @@ namespace ProjectCeilidh.NativeTK
                     return NativeType.I8;
                 case UnmanagedType.IDispatch:
                     return NativeType.IDispatch;
-                case UnmanagedType.IInspectable:
-                    throw new ArgumentException();
-                case UnmanagedType.Interface:
-                    throw new ArgumentException();
-                case UnmanagedType.IUnknown:
-                    throw new ArgumentException();
                 case UnmanagedType.LPArray:
                     return NativeType.Array;
                 case UnmanagedType.LPStr:
@@ -467,13 +477,100 @@ namespace ProjectCeilidh.NativeTK
                     return NativeType.U8;
                 case UnmanagedType.VariantBool:
                     return NativeType.VariantBool;
+                case UnmanagedType.HString:
+                case UnmanagedType.IInspectable:
+                case UnmanagedType.Interface:
+                case UnmanagedType.IUnknown:
                 case UnmanagedType.VBByRefStr:
-                    throw new ArgumentException();
+                    throw new ArgumentException(nameof(unmanagedType), $"Marshal type \"{unmanagedType}\" is not supported.");
                 default:
                     throw new ArgumentOutOfRangeException(nameof(unmanagedType), unmanagedType, null);
             }
         }
 
+        /// <summary>
+        /// Convert the type of SafeArray elements from System to Cecil form
+        /// </summary>
+        /// <param name="varEnum">The SafeArray element type</param>
+        /// <returns>An equivalent Cecil version</returns>
+        private static VariantType GetSafeArrayType(VarEnum varEnum)
+        {
+            switch (varEnum)
+            {
+                case VarEnum.VT_BOOL:
+                    return VariantType.Bool;
+                case VarEnum.VT_BSTR:
+                    return VariantType.BStr;
+                case VarEnum.VT_DATE:
+                    return VariantType.Date;
+                case VarEnum.VT_DECIMAL:
+                    return VariantType.Decimal;
+                case VarEnum.VT_DISPATCH:
+                    return VariantType.Dispatch;
+                case VarEnum.VT_ERROR:
+                    return VariantType.Error;
+                case VarEnum.VT_I1:
+                    return VariantType.I1;
+                case VarEnum.VT_I2:
+                    return VariantType.I2;
+                case VarEnum.VT_I4:
+                    return VariantType.I4;
+                case VarEnum.VT_INT:
+                    return VariantType.Int;
+                case VarEnum.VT_R4:
+                    return VariantType.R4;
+                case VarEnum.VT_R8:
+                    return VariantType.R8;
+                case VarEnum.VT_UI1:
+                    return VariantType.UI1;
+                case VarEnum.VT_UI2:
+                    return VariantType.UI2;
+                case VarEnum.VT_UI4:
+                    return VariantType.UI4;
+                case VarEnum.VT_UINT:
+                    return VariantType.UInt;
+                case VarEnum.VT_UNKNOWN:
+                    return VariantType.Unknown;
+                case VarEnum.VT_VARIANT:
+                    return VariantType.Variant;
+                case VarEnum.VT_FILETIME:
+                case VarEnum.VT_HRESULT:
+                case VarEnum.VT_EMPTY:
+                case VarEnum.VT_I8:
+                case VarEnum.VT_BYREF:
+                case VarEnum.VT_CARRAY:
+                case VarEnum.VT_CF:
+                case VarEnum.VT_CLSID:
+                case VarEnum.VT_CY:
+                case VarEnum.VT_ARRAY:
+                case VarEnum.VT_BLOB:
+                case VarEnum.VT_BLOB_OBJECT:
+                case VarEnum.VT_RECORD:
+                case VarEnum.VT_SAFEARRAY:
+                case VarEnum.VT_STORAGE:
+                case VarEnum.VT_STORED_OBJECT:
+                case VarEnum.VT_STREAM:
+                case VarEnum.VT_STREAMED_OBJECT:
+                case VarEnum.VT_UI8:
+                case VarEnum.VT_USERDEFINED:
+                case VarEnum.VT_LPSTR:
+                case VarEnum.VT_LPWSTR:
+                case VarEnum.VT_NULL:
+                case VarEnum.VT_PTR:
+                case VarEnum.VT_VECTOR:
+                case VarEnum.VT_VOID:
+                    throw new ArgumentException(nameof(varEnum));
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(varEnum), varEnum, null);
+            }
+        }
+
+        /// <summary>
+        /// Get <see cref="MarshalInfo" /> data for a given <see cref="MarshalAsAttribute"/>.
+        /// </summary>
+        /// <param name="module">The module where this will be applied.</param>
+        /// <param name="attribute">The attribute to convert.</param>
+        /// <returns>A <see cref="MarshalInfo"/> equivalent to the attribute.</returns>
         private static MarshalInfo GetMarshalInfo(ModuleDefinition module, MarshalAsAttribute attribute)
         {
             switch (attribute.Value)
@@ -495,7 +592,6 @@ namespace ProjectCeilidh.NativeTK
                 case UnmanagedType.IInspectable:
                 case UnmanagedType.Interface:
                 case UnmanagedType.IUnknown:
-                case UnmanagedType.LPArray:
                 case UnmanagedType.LPStr:
                 case UnmanagedType.LPStruct:
                 case UnmanagedType.LPTStr:
@@ -513,11 +609,17 @@ namespace ProjectCeilidh.NativeTK
                 case UnmanagedType.VariantBool:
                 case UnmanagedType.VBByRefStr:
                     return new MarshalInfo(GetNativeType(attribute.Value));
+                case UnmanagedType.LPArray:
+                    return new ArrayMarshalInfo
+                    {
+                        NativeType = NativeType.Array,
+                        SizeParameterIndex = attribute.SizeParamIndex
+                    };
                 case UnmanagedType.ByValArray:
                     return new FixedArrayMarshalInfo
                     {
                         NativeType = NativeType.FixedArray,
-                        Size = attribute.SizeConst,
+                        Size = attribute.SizeParamIndex,
                         ElementType = GetNativeType(attribute.ArraySubType)
                     };
                 case UnmanagedType.CustomMarshaler:
@@ -528,12 +630,11 @@ namespace ProjectCeilidh.NativeTK
                         ManagedType = module.ImportReference(attribute.MarshalTypeRef)
                     };
                 case UnmanagedType.SafeArray:
-                    /*return new SafeArrayMarshalInfo
+                    return new SafeArrayMarshalInfo
                     {
                         NativeType = NativeType.SafeArray,
-                        ElementType = VariantType.I1
-                    }*/
-                    throw new ArgumentException();
+                        ElementType = GetSafeArrayType(attribute.SafeArraySubType)
+                    };
                 default:
                     throw new ArgumentOutOfRangeException();
             }
