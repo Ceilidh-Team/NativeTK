@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectCeilidh.NativeTK", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectCeilidh.NativeTK.Tests", "ProjectCeilidh.NativeTK.Tests\ProjectCeilidh.NativeTK.Tests.csproj", "{6613BE4A-CFAE-4E88-A1C4-D72C48E620D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectCeilidh.NativeTK.Benchmark", "ProjectCeilidh.NativeTK.Benchmark\ProjectCeilidh.NativeTK.Benchmark.csproj", "{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectCeilidh.NativeTK.Benchmark", "ProjectCeilidh.NativeTK.Benchmark\ProjectCeilidh.NativeTK.Benchmark.csproj", "{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectCeilidh.NativeTK.Example", "ProjectCeilidh.NativeTK.Example\ProjectCeilidh.NativeTK.Example.csproj", "{9D29B4A4-6370-420A-B1E5-CC980A944619}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,18 @@ Global
 		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Release|x64.Build.0 = Release|Any CPU
 		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Release|x86.ActiveCfg = Release|Any CPU
 		{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}.Release|x86.Build.0 = Release|Any CPU
+		{9D29B4A4-6370-420A-B1E5-CC980A944619}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D29B4A4-6370-420A-B1E5-CC980A944619}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D29B4A4-6370-420A-B1E5-CC980A944619}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9D29B4A4-6370-420A-B1E5-CC980A944619}.Debug|x64.Build.0 = Debug|Any CPU
+		{9D29B4A4-6370-420A-B1E5-CC980A944619}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9D29B4A4-6370-420A-B1E5-CC980A944619}.Debug|x86.Build.0 = Debug|Any CPU
+		{9D29B4A4-6370-420A-B1E5-CC980A944619}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D29B4A4-6370-420A-B1E5-CC980A944619}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D29B4A4-6370-420A-B1E5-CC980A944619}.Release|x64.ActiveCfg = Release|Any CPU
+		{9D29B4A4-6370-420A-B1E5-CC980A944619}.Release|x64.Build.0 = Release|Any CPU
+		{9D29B4A4-6370-420A-B1E5-CC980A944619}.Release|x86.ActiveCfg = Release|Any CPU
+		{9D29B4A4-6370-420A-B1E5-CC980A944619}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
