@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectCeilidh.NativeTK.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectCeilidh.NativeTK.Benchmark", "ProjectCeilidh.NativeTK.Benchmark\ProjectCeilidh.NativeTK.Benchmark.csproj", "{C0F89064-2E15-4EB7-9311-8F3ED02DF5E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectCeilidh.NativeTK.Example", "ProjectCeilidh.NativeTK.Example\ProjectCeilidh.NativeTK.Example.csproj", "{9D29B4A4-6370-420A-B1E5-CC980A944619}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectCeilidh.NativeTK.Example", "ProjectCeilidh.NativeTK.Example\ProjectCeilidh.NativeTK.Example.csproj", "{9D29B4A4-6370-420A-B1E5-CC980A944619}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
