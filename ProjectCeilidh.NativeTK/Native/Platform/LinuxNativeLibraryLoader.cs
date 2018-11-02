@@ -10,14 +10,19 @@ namespace ProjectCeilidh.NativeTK.Native.Platform
         
         protected override string[] GetNativeLibraryNames(string libraryName, Version version)
         {
+            if (version == null)
+                return new[]
+                {
+                    $"lib{libraryName}.so"
+                };
+
             return new[]
             {
                 $"lib{libraryName}.so.{version.Major}.{version.Minor}.{version.Build}",
                 $"lib{libraryName}.so.{version.Major}.{version.Minor}",
-                $"lib{libraryName}.so.{version.Major}",
-                $"lib{libraryName}.so"
+                $"lib{libraryName}.so.{version.Major}"
             };
-        }
+    }
 
         protected override NativeLibraryHandle LoadNativeLibrary(string libraryName)
         {

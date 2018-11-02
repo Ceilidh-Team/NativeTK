@@ -12,21 +12,23 @@ namespace ProjectCeilidh.NativeTK.Tests
         [InlineData(NativeBindingType.Static)]
         public void BindingTest(NativeBindingType bindingType)
         {
+            var factory = BindingFactory.GetFactoryForBindingType(bindingType);
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                var binding = BindingFactory.CreateBinding<ITestBindingWindows>(bindingType);
+                var binding = factory.CreateBinding<ITestBindingWindows>();
                 Assert.NotEqual(IntPtr.Zero, binding.GetStdHandle(-11));
                 ref var _ = ref binding.GetCommandLineWRef;
             }
             else
             {
-                var binding = BindingFactory.CreateBinding<ITestBindingUnix>(bindingType);
+                var binding = factory.CreateBinding<ITestBindingUnix>();
                 Assert.Equal(IntPtr.Zero, binding.dlopen("", 0));
                 ref var _ = ref binding.dlsym;
             }
         }
 
-        [NativeLibraryContract("dl", VersionString = "2.0.0")]
+        [NativeLibraryContract("dl")]
         public interface ITestBindingUnix
         {
             [NativeImport]

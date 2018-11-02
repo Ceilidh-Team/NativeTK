@@ -7,7 +7,7 @@ namespace ProjectCeilidh.NativeTK.Example
     {
         public static void Main(string[] args)
         {
-            var ebur128 = BindingFactory.CreateBinding<IEbuR128>();
+            var ebur128 = BindingFactory.GetFactoryForBindingType(NativeBindingType.Static).CreateBinding<IEbuR128>();
             ebur128.GetVersion(out var major, out var minor, out var patch);
             Console.WriteLine($"Version {major}.{minor}.{patch}");
 

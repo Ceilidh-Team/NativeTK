@@ -11,6 +11,15 @@ namespace ProjectCeilidh.NativeTK.Native.Platform
         {
             var archDescription = IntPtr.Size == 4 ? "x86" : "x64";
 
+            if (version == null)
+                return new[]
+                {
+                    $"{libraryName}.dll",
+                    $"lib{libraryName}.dll",
+                    $"{libraryName}_{archDescription}.dll",
+                    $"lib{libraryName}_{archDescription}.dll"
+                };
+
             return new[]
             {
                 $"{libraryName}-{version.Major}.dll",

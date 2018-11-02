@@ -17,7 +17,7 @@ namespace ProjectCeilidh.NativeTK.Attributes
         /// <summary>
         /// The version of the library, as a string.
         /// </summary>
-        public string VersionString = "0.0.0";
+        public string VersionString = null;
         /// <summary>
         /// A version object reperesenting the version string.
         /// </summary>

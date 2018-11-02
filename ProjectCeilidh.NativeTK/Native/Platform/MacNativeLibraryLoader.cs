@@ -10,12 +10,17 @@ namespace ProjectCeilidh.NativeTK.Native.Platform
         
         protected override string[] GetNativeLibraryNames(string libraryName, Version version)
         {
+            if (version == null)
+                return new[]
+                {
+                    $"lib{libraryName}.dylib"
+                };
+
             return new[]
             {
                 $"lib{libraryName}.{version.Major}.{version.Minor}.{version.Build}.dylib",
                 $"lib{libraryName}.{version.Major}.{version.Minor}.dylib",
-                $"lib{libraryName}.{version.Major}.dylib",
-                $"lib{libraryName}.dylib"
+                $"lib{libraryName}.{version.Major}.dylib"
             };
         }
 

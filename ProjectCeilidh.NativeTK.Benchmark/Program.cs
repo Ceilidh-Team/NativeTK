@@ -12,8 +12,8 @@ namespace ProjectCeilidh.NativeTK.Benchmark
         [RankColumn, MedianColumn]
         public class Benchmark
         {
-            private static readonly ITestBinding IndirectBinding = BindingFactory.CreateBinding<ITestBinding>(NativeBindingType.Indirect);
-            private static readonly ITestBinding StaticBinding = BindingFactory.CreateBinding<ITestBinding>();
+            private static readonly ITestBinding IndirectBinding = BindingFactory.GetFactoryForBindingType(NativeBindingType.Indirect).CreateBinding<ITestBinding>();
+            private static readonly ITestBinding StaticBinding = BindingFactory.GetFactoryForBindingType(NativeBindingType.Static).CreateBinding<ITestBinding>();
 
             [Benchmark]
             public void Indirect()
